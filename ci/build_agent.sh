@@ -5,18 +5,10 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update
-sudo apt-get install -y bison ca-certificates ccache clang cmake curl file flex gcc g++ git make ninja-build python3 texinfo zlib1g-dev libssl-dev libelf-dev patchelf
+sudo apt-get install -y bison ca-certificates ccache clang cmake curl file flex gcc g++ git make ninja-build python3 texinfo zlib1g-dev libssl-dev libelf-dev patchelf cmake
 
 git config --global user.name "$GIT_NAME"
 git config --global user.email "$GIT_EMAIL"
-
-# Build a newer version of CMake to satisfy LLVM's requirements
-curl -L https://gitlab.kitware.com/cmake/cmake/-/archive/v3.18.0/cmake-v3.18.0.tar.gz | tar xzf -
-pushd cmake-v3.18.0
-./bootstrap --parallel=$(nproc)
-make -j$(nproc)
-make install
-popd
 
 # Clone build scripts
 git clone --depth 1 "https://github.com/$GH_BUILD_REPO" build
