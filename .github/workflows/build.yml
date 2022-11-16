@@ -14,8 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download scripts
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
       - name: Deploy builder
         env:
           PACKET_TOKEN: ${{ secrets.PACKET_TOKEN }}
