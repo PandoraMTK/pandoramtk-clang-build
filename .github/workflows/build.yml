@@ -39,8 +39,3 @@ jobs:
           GH_USER: ${{ secrets.GIT_USER }}
         run: |
           ci/build_agent.sh
-      - name: Upload artifact
-        uses: actions/upload-artifact@master
-        with:
-          name: PandoraMTK-Clang
-          path: ./build/install/

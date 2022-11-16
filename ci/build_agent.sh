@@ -6,10 +6,6 @@ set -euo pipefail
 git config --global user.name "$GIT_NAME"
 git config --global user.email "$GIT_EMAIL"
 
-# Clone build scripts
-git clone --depth 1 "https://github.com/$GH_BUILD_REPO" build
-cd build
-
 # Clone LLVM and apply fixup patches *before* building
 git clone --depth 1 "https://github.com/llvm/llvm-project"
 if [ -n "$(echo patches/*.patch)" ]; then
