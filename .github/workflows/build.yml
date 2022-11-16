@@ -1,12 +1,12 @@
 name: Build & upload toolchain
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-  schedule:
-    # 3 PM PST on Saturdays
-    - cron: '0 22 * * SAT'
+  #push:
+  #  branches:
+  #    - master
+  #schedule:
+  #  # 3 PM PST on Saturdays
+  #  - cron: '0 22 * * SAT'
 
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mysql* php*
+          sudo -E apt-get -y purge azure-cli ghc* zulu* firefox google* dotnet* powershell openjdk* mysql* php*
           sudo -E apt-get update 
           sudo -E apt-get install -y bison ca-certificates ccache clang cmake curl file flex gcc g++ git make ninja-build python3 texinfo zlib1g-dev libssl-dev libelf-dev patchelf cmake
           sudo -E apt-get -y autoremove --purge
@@ -39,3 +39,8 @@ jobs:
           GH_USER: ${{ secrets.GIT_USER }}
         run: |
           ci/build_agent.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: PandoraMTK-Clang
+          path: ./build/install/
