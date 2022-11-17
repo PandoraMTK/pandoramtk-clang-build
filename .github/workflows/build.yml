@@ -25,12 +25,9 @@ jobs:
     steps:
       - name: Download scripts
         uses: actions/checkout@master
-        with:
-          fetch-depth: 1
       - name: Download LLVM
         uses: actions/checkout@master
         with:
-          fetch-depth: 1
           repository: llvm/llvm-project
           path: ./llvm-project
       - name: Setup build-essential
@@ -38,11 +35,10 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo -E apt-get -y purge azure-cli ghc* zulu* firefox google* dotnet* powershell openjdk* mysql* php*
-          sudo -E apt-get update 
+          sudo -E apt-get update 			
           sudo -E apt-get install -y bison ca-certificates ccache clang cmake curl file flex gcc g++ git make ninja-build python3 texinfo zlib1g-dev libssl-dev libelf-dev patchelf cmake
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get clean
-          ls -1 ./
       - name: Setup 
         run: |
           git config --global user.name "$GIT_NAME"

@@ -13,9 +13,8 @@ function msg() {
 # Build LLVM
 msg "Building LLVM..."
 ./build-llvm.py \
-	--clang-vendor "PandoraMTK" \
+	--clang-vendor "Pandora" \
 	--targets "ARM;AArch64;X86" \
 	"$repo_flag" \
-	--pgo kernel-defconfig \
 	--lto thin
 
