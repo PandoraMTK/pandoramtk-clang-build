@@ -7,15 +7,31 @@ on:
   #schedule:
   #  # 3 PM PST on Saturdays
   #  - cron: '0 22 * * SAT'
-
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+  TG_TOKEN: ${{ secrets.TG_TOKEN }}
+  GIT_AUTHOR_NAME: ${{ secrets.GIT_AUTHOR_NAME }}
+  GIT_AUTHOR_EMAIL: ${{ secrets.GIT_AUTHOR_EMAIL }}
+  GIT_NAME: ${{ secrets.GIT_AUTHOR_NAME }}
+  GIT_EMAIL: ${{ secrets.GIT_AUTHOR_EMAIL }}
+  GH_REL_REPO: ${{ secrets.GIT_REL_REPO }}
+  GH_BUILD_REPO: ${{ secrets.GIT_BUILD_REPO }}
+  GH_USER: ${{ secrets.GIT_USER }}
 jobs:
   build:
+    timeout-minutes: 1440
     runs-on: ubuntu-22.04
     steps:
       - name: Download scripts
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+      - name: Download LLVM
+        uses: actions/checkout@master
+        with:
+          repository: llvm/llvm-project
+          path: ./llvm-project
       - name: Setup build-essential
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -25,17 +41,19 @@ jobs:
           sudo -E apt-get install -y bison ca-certificates ccache clang cmake curl file flex gcc g++ git make ninja-build python3 texinfo zlib1g-dev libssl-dev libelf-dev patchelf cmake
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get clean
-      - name: Start Build
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
-          GIT_AUTHOR_NAME: ${{ secrets.GIT_AUTHOR_NAME }}
-          GIT_AUTHOR_EMAIL: ${{ secrets.GIT_AUTHOR_EMAIL }}
-          GIT_NAME: ${{ secrets.GIT_AUTHOR_NAME }}
-          GIT_EMAIL: ${{ secrets.GIT_AUTHOR_EMAIL }}
-          GH_REL_REPO: ${{ secrets.GIT_REL_REPO }}
-          GH_BUILD_REPO: ${{ secrets.GIT_BUILD_REPO }}
-          GH_USER: ${{ secrets.GIT_USER }}
+          ls -1 ./
+      - name: Setup 
         run: |
-          ci/build_agent.sh
+          git config --global user.name "$GIT_NAME"
+          git config --global user.email "$GIT_EMAIL"
+      - name: Patch LLVM
+        run: ./patch-llvm.sh
+      - name: Build toolchain
+        run: ./build-toolchain.sh
+      - name: Build binutils
+        run: ./build-binutils.sh
+      - name: Build Cleanup
+        run: ./build-cleanup.sh
+      - name: Upload Build
+        run: ./upload-build.sh
+          
