@@ -30,6 +30,7 @@ jobs:
       - name: Download LLVM
         uses: actions/checkout@master
         with:
+          fetch-depth: 1
           repository: llvm/llvm-project
           path: ./llvm-project
       - name: Setup build-essential
