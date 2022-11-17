@@ -151,7 +151,8 @@ def parse_parameters(root_folder):
                         more information.
                         """),
                         type=str,
-                        choices=['Release', 'Debug', 'RelWithDebInfo', 'MinSizeRel'],
+                        choices=['Release', 'Debug',
+                                 'RelWithDebInfo', 'MinSizeRel'],
                         default="Release")
     # yapf: enable
     parser.add_argument("--check-targets",
@@ -597,8 +598,8 @@ def fetch_llvm_binutils(root_folder, llvm_folder, update, shallow, ref):
                     "git", "pull", "--rebase", "origin",
                     local_ref.strip().replace("refs/heads/", "")
                 ],
-                               check=True,
-                               cwd=cwd)
+                    check=True,
+                    cwd=cwd)
     else:
         utils.print_header("Downloading LLVM")
 
@@ -612,7 +613,7 @@ def fetch_llvm_binutils(root_folder, llvm_folder, update, shallow, ref):
             "https://github.com/llvm/llvm-project",
             llvm_folder.as_posix()
         ],
-                       check=True)
+            check=True)
         subprocess.run(["git", "checkout", ref], check=True, cwd=cwd)
 
     # One might wonder why we are downloading binutils in an LLVM build script :)
@@ -804,10 +805,10 @@ def cc_ld_cmake_defines(dirs, env_vars, stage):
 
     # The C++ compiler to use
     defines['CMAKE_CXX_COMPILER'] = cxx
-	
+
     # The standard we use
-    defines['CMAKE_CXX_STANDARD'] = '20'
-    defines['CMAKE_C_STANDARD'] = '17'
+    defines['CMAKE_CXX_STANDARD'] = "20"
+    defines['CMAKE_C_STANDARD'] = "17"
     # If we have a linker, use it
     if ld:
         defines['LLVM_USE_LINKER'] = ld
@@ -1324,7 +1325,7 @@ def generate_pgo_profiles(args, dirs):
     ] + glob.glob(
         dirs.build_folder.joinpath("stage2", "profiles",
                                    "*.profraw").as_posix()),
-                   check=True)
+        check=True)
 
 
 def do_multistage_build(args, dirs, env_vars):
@@ -1357,9 +1358,9 @@ def can_use_perf():
                 "perf", "record", "--branch-filter", "any,u", "--event",
                 "cycles:u", "--output", "/dev/null", "--", "sleep", "1"
             ],
-                           stderr=subprocess.DEVNULL,
-                           stdout=subprocess.DEVNULL,
-                           check=True)
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                check=True)
         except:
             pass
         else:
