@@ -805,9 +805,9 @@ def cc_ld_cmake_defines(dirs, env_vars, stage):
     # The C++ compiler to use
     defines['CMAKE_CXX_COMPILER'] = cxx
 	
-	# The standard we use
-	defines['CMAKE_CXX_STANDARD'] = 20
-	defines['CMAKE_C_STANDARD'] = 17
+    # The standard we use
+    defines['CMAKE_CXX_STANDARD'] = 20
+    defines['CMAKE_C_STANDARD'] = 17
     # If we have a linker, use it
     if ld:
         defines['LLVM_USE_LINKER'] = ld
