@@ -8,13 +8,17 @@ function msg() {
 }
 
 # Don't touch repo if running on CI
-[ -z "$GH_RUN_ID" ] && repo_flag="--shallow-clone" || repo_flag="--no-update"
+repo_flag="--shallow-clone" || repo_flag="--no-update"
 
 # Build LLVM
 msg "Building LLVM..."
 ./build-llvm.py \
 	--clang-vendor "Pandora" \
+	--branch "release/15.x" \
 	--targets "ARM;AArch64;X86" \
+	--build-type "MinSizeRel" \
 	"$repo_flag" \
+#	--pgo kernel-defconfig \
+	--bolt --assertions \
 	--lto thin
 

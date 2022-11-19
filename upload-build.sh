@@ -11,13 +11,12 @@ function gh_call() {
     shift
     shift
 
-    resp="$(curl -Lfu "$GH_USER:$GH_TOKEN" \
+    resp="$(curl -vLfu "$GH_USER:$GH_TOKEN" \
         -H "Accept: application/vnd.github.v3+json" \
         -X "$req" \
         "https://$server.github.com/repos/$GH_REL_REPO/$endpoint" \
         "$@")" || \
         { ret="$?"; echo "Request failed with exit code $ret:"; cat <<< "$resp"; return $ret; }
-
     cat <<< "$resp"
 }
 
@@ -38,6 +37,7 @@ function tg_send() {
 }
 
 # Generate build info
+LC_TIME=en_US.utf8
 rel_date="$(date "+%Y%m%d")" # ISO 8601 format
 rel_friendly_date="$(date "+%B %-d, %Y")" # "Month day, year" format
 clang_version="$(install/bin/clang --version | head -n1 | cut -d' ' -f4)"
@@ -53,7 +53,7 @@ llvm_commit_url="https://github.com/llvm/llvm-project/commit/$llvm_commit"
 binutils_ver="$(ls | grep "^binutils-" | sed "s/binutils-//g")"
 
 # Update Git repository
-git clone "https://$GH_USER:$GH_TOKEN@github.com/$GH_REL_REPO" rel_repo
+git clone "git@github.com:$GH_REL_REPO" rel_repo
 pushd rel_repo
 rm -fr *
 cp -r ../install/* .
@@ -65,20 +65,20 @@ git commit -am "Update to $rel_date build
 LLVM commit: $llvm_commit_url
 binutils version: $binutils_ver
 Builder commit: https://github.com/$GH_BUILD_REPO/commit/$builder_commit"
-git push
-popd
 
 # Delete the existing release with this date, if necessary
 resp="$(gh_call GET api "releases/tags/$rel_date" -sS)" && \
     old_rel_id="$(jq .id <<< "$resp")" && \
     gh_call DELETE api "releases/$old_rel_id" -sS
 
+git push
+popd
 # Create new release
 payload="$(cat <<END
 {
     "tag_name": "$rel_date",
-    "target_commitish": "master",
-    "name": "$rel_friendly_date",
+    "target_commitish": "main",
+    "name": "Pandora-Clang $clang_version-$rel_date",
     "body": "Automated build of LLVM + Clang $clang_version as of commit [$short_llvm_commit]($llvm_commit_url) and binutils $binutils_ver."
 }
 END
@@ -99,5 +99,8 @@ if [[ -n "$TG_CHAT_ID" ]] && [[ -n "$TG_TOKEN" ]]; then
     fi
     set -u
 
-    tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$short_llvm_commit]($llvm_commit_url) is now available: [tarball](https://github.com/$GH_REL_REPO/archive/$rel_date.tar.gz) or [Git repository](https://github.com/$GH_REL_REPO)"
+    tg_send Message parse_mode=Markdown disable_web_page_preview=true text="$build_desc on LLVM commit [$short_llvm_commit]($llvm_commit_url) is now available.
+[tarball](https://github.com/$GH_REL_REPO/archive/$rel_date.tar.gz)
+[Git repository](https://github.com/$GH_REL_REPO)
+[Github Release]($rel_url)"
 fi
