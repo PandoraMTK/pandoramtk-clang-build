@@ -11,7 +11,7 @@ function gh_call() {
     shift
     shift
 
-    resp="$(curl -vLfu "$GH_USER:$GH_TOKEN" \
+    resp="$(curl -Lfu "$GH_USER:$GH_TOKEN" \
         -H "Accept: application/vnd.github.v3+json" \
         -X "$req" \
         "https://$server.github.com/repos/$GH_REL_REPO/$endpoint" \
@@ -53,7 +53,7 @@ llvm_commit_url="https://github.com/llvm/llvm-project/commit/$llvm_commit"
 binutils_ver="$(ls | grep "^binutils-" | sed "s/binutils-//g")"
 
 # Update Git repository
-git clone "git@github.com:$GH_REL_REPO" rel_repo
+git clone "git@$GH_USER:$GH_TOKEN@github.com:$GH_REL_REPO" rel_repo
 pushd rel_repo
 rm -fr *
 cp -r ../install/* .
@@ -65,14 +65,14 @@ git commit -am "Update to $rel_date build
 LLVM commit: $llvm_commit_url
 binutils version: $binutils_ver
 Builder commit: https://github.com/$GH_BUILD_REPO/commit/$builder_commit"
+git push
+popd
 
 # Delete the existing release with this date, if necessary
 resp="$(gh_call GET api "releases/tags/$rel_date" -sS)" && \
     old_rel_id="$(jq .id <<< "$resp")" && \
     gh_call DELETE api "releases/$old_rel_id" -sS
 
-git push
-popd
 # Create new release
 payload="$(cat <<END
 {
